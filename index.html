@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Imersão 5g - Senai</title>
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+	<main class="main">
+		<div class="topo">
+			<h1>Imersão 5g - Senai Centro 4.0</h1>
+		</div>
+		<div class="corpo">
+			<div class="painel p1">
+				<div class="info">
+					<p>Status: <span id="status" style="color: #a00; font-weight: bold;">Desconectado</span></p>
+					<p>Tópico: <span id="topico"></span></p>
+					<label>Tempo programado para produzir: em segundos</label>
+					<input type="number" id="inputTmpProgramado" class="" value="14400" placeholder="Tempo programado para produzir: em segundos">
+					<select id="selCelula" class="selCelula">
+						<option value="">Selecione</option>
+						<option value="Preparacao1">Preparação 1</option>
+						<option value="Estrutura1">Estrutura 1</option>
+						<option value="Vedacao1">Vedação 1</option>
+						<option value="Q.A.1">Q.A. 1</option>
+						<option value="Acabamento1">Acabamento 1</option>
+						<option value="Preparacao2">Preparação 2</option>
+						<option value="Estrutura2">Estrutura 2</option>
+						<option value="Vedacao2">Vedação 2</option>
+						<option value="Q.A.2">Q.A. 2</option>
+						<option value="Acabamento2">Acabamento 2</option>
+					</select>
+					<div class="botoes">
+						<button class="btnAcao" id="btnConectar" onclick="conectarMQTT()">Conectar</button>
+						<button class="btnAcao btnDesabilitado" id="btnDesconectar" onclick="desconectarMQTT()" disabled>Desconectar</button>
+					</div>
+				</div>
+				<div class="mensagens" id="mensagens">
+				</div>
+			</div>
+			<div class="painel p2">
+				<div class="producao">
+					<p>Tempo Programado para Produzir: <span id="tmpProgramado"></span></p>
+					<p>Tempo Produzindo: <span id="tmpProduzindo"></span></p>
+					<p>Produção teórica: <span id="prodTeorica"></span></p>
+					<p>Produção Real: <span id="prodReal"></span></p>
+					<p>Peças Boas: <span id="pecasBoas"></span></p>
+					<p>Peças Ruins: <span id="pecasRuins"></span></p>
+				</div>
+				<div class="grafico">
+					<p>Qualidade</p>
+					<div class="trilhoGrafico">
+						<div id="qualidade" style="width: 0%;">0%</div>
+					</div>
+				</div>
+				<div class="grafico">
+					<p>Disponibilidade</p>
+					<div class="trilhoGrafico">
+						<div id="disponibilidade" style="width: 0%;">0%</div>
+					</div>
+				</div>
+				<div class="grafico">
+					<p>Performance</p>
+					<div class="trilhoGrafico">
+						<div id="performance" style="width: 0%;">0%</div>
+					</div>
+				</div>
+				<div class="grafico">
+					<p>OEE</p>
+					<div class="trilhoGrafico">
+						<div id="oee" style="width: 0%;">0%</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+	<script src="scripts.js"></script>
+</body>
+</html>
