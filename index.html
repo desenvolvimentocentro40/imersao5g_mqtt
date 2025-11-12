@@ -18,7 +18,7 @@
 					<p>Tópico: <span id="topico"></span></p>
 					<label>Tempo programado para produzir: em segundos</label>
 					<input type="number" id="inputTmpProgramado" class="" value="3000" placeholder="Tempo programado para produzir: em segundos">
-					<select id="selCelula" class="selCelula">
+					<select title="Selecione a célula" id="selCelula" class="selCelula" onchange="trocarCelula()">
 						<option value="">Selecione</option>
 						<option value="Preparacao0">** Teste **</option>
 						<option value="Preparacao1">Preparação 1</option>
@@ -34,10 +34,6 @@
 						<option value="Acabamento2">Acabamento 2</option>
 						<option value="Logistica2">Logística 2</option>
 					</select>
-					<div class="botoes">
-						<button class="btnAcao" id="btnConectar" onclick="conectarMQTT()">Conectar</button>
-						<button class="btnAcao btnDesabilitado" id="btnDesconectar" onclick="desconectarMQTT()" disabled>Desconectar</button>
-					</div>
 				</div>
 				<div class="mensagens" id="mensagens">
 				</div>
