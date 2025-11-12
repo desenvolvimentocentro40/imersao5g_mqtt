@@ -1,5 +1,5 @@
-const txt_status=document.getElementById("status")
-const topico=document.getElementById("topico")
+const txt_status=document.getElementById("txtstatus")
+const txt_topico=document.getElementById("txttopico")
 const inputTmpProgramado=document.getElementById("inputTmpProgramado")
 const selCelula=document.getElementById("selCelula")
 const mensagens=document.getElementById("mensagens")
@@ -53,7 +53,7 @@ function conectarMQTT(){
     client.connect(connectOptions);
     v_celula=selCelula.value
     v_topico=`${v_topicoBase}/${v_celula}/Processo/#`
-    topico.innerHTML=v_topico
+    txt_topico.innerHTML=v_topico
     txt_status.innerHTML="Conectando..."
     txt_status.style.color="#f80"
 }
