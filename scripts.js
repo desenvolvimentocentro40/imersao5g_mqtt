@@ -2,8 +2,6 @@ const txt_status=document.getElementById("status")
 const topico=document.getElementById("topico")
 const inputTmpProgramado=document.getElementById("inputTmpProgramado")
 const selCelula=document.getElementById("selCelula")
-const btnConectar=document.getElementById("btnConectar")
-const btnDesconectar=document.getElementById("btnDesconectar")
 const mensagens=document.getElementById("mensagens")
 const disponibilidade=document.getElementById("disponibilidade")
 const performance=document.getElementById("performance")
@@ -25,14 +23,6 @@ let v_performance=0
 let v_qualidade=0
 let v_oee=v_disponibilidade*v_performance*v_qualidade/10000
 
-const BROKER_HOST = 'mqtt-dashboard.com';
-const BROKER_PORT = 8884;
-const BROKER_USER = '';
-const BROKER_PASS = '';
-const CLIENT_ID = "meuAppWeb_" + parseInt(Math.random() * 1000);
-
-let client = new Paho.MQTT.Client(BROKER_HOST, BROKER_PORT, CLIENT_ID);
-
 const v_dados={
     tmpProgramado:0,
     tmpProduzindo:0,
@@ -42,15 +32,15 @@ const v_dados={
     pecasRuins:0
 }
 
+const BROKER_HOST = 'mqtt-dashboard.com';
+const BROKER_PORT = 8884;
+const BROKER_USER = '';
+const BROKER_PASS = '';
+const CLIENT_ID = "meuAppWeb_" + parseInt(Math.random() * 1000);
+
+let client = new Paho.MQTT.Client(BROKER_HOST, BROKER_PORT, CLIENT_ID);
+
 function conectarMQTT(){
-    if(selCelula.value==""){
-        alert("Selecione uma célula de produção!")
-        return
-    }
-    if(inputTmpProgramado.value<=0 || inputTmpProgramado.value==""){
-        alert("Informe o Tempo programado para produzir: em segundos")
-        return
-    } 
     const connectOptions = {
         useSSL: true,
         userName: BROKER_USER,
@@ -69,26 +59,29 @@ function conectarMQTT(){
 }
 
 const desconectarMQTT=()=>{
-    try{
-        if (client && client.isConnected && client.isConnected()) {
-            client.disconnect()
-            txt_status.innerHTML="Desconectado"
-            txt_status.style.color="#a00"
-            mensagens.innerHTML=""
-            btnConectar.disabled=false
-            btnDesconectar.disabled=true
-            btnConectar.classList.remove("btnDesabilitado")
-            btnDesconectar.classList.add("btnDesabilitado")
-            v_dados.tmpProgramado=0
-            v_dados.tmpProduzindo=0
-            v_dados.prodTeorica=0
-            v_dados.prodReal=0
-            v_dados.pecasBoas=0
-            v_dados.pecasRuins=0
-            calcOEE()
-            atualizarFrontend()
-        }
-    }catch(err){}
+    if (client && client.isConnected && client.isConnected()) {
+        client.disconnect()
+        txt_status.innerHTML="Desconectado"
+        txt_status.style.color="#a00"
+        mensagens.innerHTML=""
+        v_dados.tmpProgramado=0
+        v_dados.tmpProduzindo=0
+        v_dados.prodTeorica=0
+        v_dados.prodReal=0
+        v_dados.pecasBoas=0
+        v_dados.pecasRuins=0
+        calcOEE()
+    }
+}
+
+function trocarCelula(){
+    if(client.isConnected()){
+        desconectarMQTT()
+        conectarMQTT()
+    }else{
+        conectarMQTT()
+    }
+    atualizarFrontend()
 }
 
 function onConnect(){
@@ -96,14 +89,9 @@ function onConnect(){
     txt_status.style.color="#0a0"    
 	const topicoPadrao = v_topico
 	client.subscribe(topicoPadrao)
-    btnConectar.disabled=true
-    btnDesconectar.disabled=false
-    btnConectar.classList.add("btnDesabilitado")
-    btnDesconectar.classList.remove("btnDesabilitado")
 }
 
 function onFailure(responseObject){
-    console.log("Falha ao conectar ao MQTT...")
     txt_status.innerHTML=`Falha: ${responseObject.errorMessage}`
     txt_status.style.color="#a00"  
 }
@@ -127,7 +115,7 @@ const onMessageArrived=(message)=>{
         case "Quantidade_de_Producao":
             v_dados.prodTeorica=parseInt(payload)
             break
-        case "Quantidade_Peca_boa":
+        case "Quantidade_Peca_Boa":
             v_dados.pecasBoas=parseInt(payload)
             break
         case "Quantidade_Peca_Ruim":
@@ -137,29 +125,17 @@ const onMessageArrived=(message)=>{
     v_dados.prodReal=v_dados.pecasBoas+v_dados.pecasRuins
     criarLinhaMensagem(topico,payload)
     calcOEE()
-    atualizarFrontend()
 }
 
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
 
-const calcDisponibilidade=()=>{
-    v_disponibilidade=((v_dados.tmpProduzindo/v_dados.tmpProgramado)*100 || 0).toFixed(2)
-}
-
-const calcPerformance=()=>{
-    v_performance=((v_dados.prodReal/v_dados.prodTeorica)*100 || 0).toFixed(2)
-}
-
-const calcQualidade=()=>{
-    v_qualidade=((v_dados.pecasBoas/(v_dados.pecasBoas+v_dados.pecasRuins) || 0)*100).toFixed(2)
-}
-
 const calcOEE=()=>{
-    calcDisponibilidade()
-    calcPerformance()
-    calcQualidade()
+    v_disponibilidade=((v_dados.tmpProduzindo/v_dados.tmpProgramado)*100 || 0).toFixed(2)
+    v_performance=((v_dados.prodReal/v_dados.prodTeorica)*100 || 0).toFixed(2)
+    v_qualidade=((v_dados.pecasBoas/(v_dados.pecasBoas+v_dados.pecasRuins) || 0)*100).toFixed(2)
     v_oee=((v_disponibilidade*v_performance*v_qualidade)/10000).toFixed(2)
+    atualizarFrontend()
 }
 
 const calcularCor=(valor)=>{
