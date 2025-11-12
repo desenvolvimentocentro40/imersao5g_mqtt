@@ -20,13 +20,18 @@ const v_topicoBase="Centro4.0"
 let v_celula="Preparacao"
 let v_topico=""
 
+let v_disponibilidade=0
+let v_performance=0
+let v_qualidade=0
+let v_oee=v_disponibilidade*v_performance*v_qualidade/10000
+
 const BROKER_HOST = 'mqtt-dashboard.com';
 const BROKER_PORT = 8884;
 const BROKER_USER = '';
 const BROKER_PASS = '';
 const CLIENT_ID = "meuAppWeb_" + parseInt(Math.random() * 1000);
 
-let client="";
+let client = new Paho.MQTT.Client(BROKER_HOST, BROKER_PORT, CLIENT_ID);
 
 const v_dados={
     tmpProgramado:0,
@@ -36,11 +41,6 @@ const v_dados={
     pecasBoas:0,
     pecasRuins:0
 }
-
-let v_disponibilidade=0
-let v_performance=0
-let v_qualidade=0
-let v_oee=v_disponibilidade*v_performance*v_qualidade/10000
 
 function conectarMQTT(){
     if(selCelula.value==""){
@@ -91,10 +91,6 @@ const desconectarMQTT=()=>{
     }catch(err){}
 }
 
-function limparMensagens(){
-    mensagens.innerHTML=""
-}
-
 function onConnect(){
     txt_status.innerHTML="Conectado"
     txt_status.style.color="#0a0"    
@@ -125,7 +121,6 @@ const onMessageArrived=(message)=>{
     const topicocompleto=topico.split("/")
     const topicodado=topicocompleto[topicocompleto.length-1]
     switch(topicodado){
-        //case "Tempo_Robo_Turno":
         case "Tempo_Robo_ON":
             v_dados.tmpProduzindo=parseInt(payload)
             break
@@ -145,11 +140,8 @@ const onMessageArrived=(message)=>{
     atualizarFrontend()
 }
 
-client = new Paho.MQTT.Client(BROKER_HOST, BROKER_PORT, CLIENT_ID);
 client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
-
-function setaTempoProgProd(){}
 
 const calcDisponibilidade=()=>{
     v_disponibilidade=((v_dados.tmpProduzindo/v_dados.tmpProgramado)*100 || 0).toFixed(2)
